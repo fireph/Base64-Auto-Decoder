@@ -1,0 +1,26 @@
+{
+  "name": "Base64 Auto Decoder",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "Decodes base64 text within website <code> tags.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "96": "icons/icon96.png"
+  },
+  "default_locale": "en",
+  "permissions": [
+    "contentSettings",
+    "https://forum.snahp.it/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://forum.snahp.it/viewtopic.php*"
+      ],
+      "js": [
+        "src/inject/inject.js"
+      ]
+    }
+  ]
+}
