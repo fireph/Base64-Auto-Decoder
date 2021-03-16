@@ -1,6 +1,6 @@
 chrome.extension.sendMessage({}, function(response) {
 	var readyStateCheckInterval = setInterval(function() {
-	if (document.readyState === "interactive") {
+	if (document.readyState === "complete") {
 		clearInterval(readyStateCheckInterval);
 		const httpRegex = /https?:\/\//g;
 		const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
