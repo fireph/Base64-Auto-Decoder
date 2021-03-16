@@ -5,19 +5,34 @@ chrome.extension.sendMessage({}, function(response) {
 		let regex = undefined;
 		let regexHtml = undefined;
 		let decodeFunc = undefined;
-		if (document.body.innerHTML.search("base64")) {
+		if (document.body.innerHTML.search("base64") || true) {
 			regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/g;
-			regexHtml = /\<code\>[\t\n ]*((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)[\t\n ]*\<\/code\>/g;
+			regexHtml = /(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?/g;
 			decodeFunc = atob;
 		}
-		if (regex && regexHtml && decodeFunc && document.body.innerHTML.search(regexHtml) > -1) {
-			document.body.innerHTML = document.body.innerHTML.replaceAll(regexHtml, (match, p1) => {
-				let decoded = decodeFunc(p1);
-				while (decoded.search(regex) > -1) {
-					decoded = decodeFunc(decoded);
-				}
-				return "<code>" + p1 + "\n<a href=\"" + decoded + "\" target=\"_blank\">" + decoded + "</a></code>";
-			});
+		const tagElems = ["code", "dd"];
+		let elements = [];
+		for (const tag of tagElems) {
+			elements = elements.concat([...document.getElementsByTagName(tag)]);
+		}
+		if (regex && regexHtml && decodeFunc) {
+			for (const ele of elements) {
+				ele.innerHTML = ele.innerHTML.replaceAll(regexHtml, (match) => {
+					if (match.length < 24) {
+						return match;
+					}
+					let numDecodes = 0
+					let decoded = decodeFunc(match);
+					while (!(decoded.includes("http://") || decoded.includes("https://")) && decoded.search(regex) > -1 && numDecodes < 5) {
+						decoded = decodeFunc(decoded);
+						numDecodes++;
+					}
+					if (decoded.includes("http://") || decoded.includes("https://")) {
+						return "<a href=\"" + decoded + "\" target=\"_blank\">" + decoded + "</a>";
+					}
+					return match;
+				});
+			}
 		}
 	}
 	}, 10);
